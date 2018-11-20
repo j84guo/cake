@@ -36,6 +36,7 @@ public:
     friend ostream& operator<<(ostream& out, const Target& t);
 };
 
+/** for convenience */
 typedef unordered_map<string, Target> TargetMap;
 
 ostream& operator<<(ostream& out, const vector<string>& v)
@@ -103,12 +104,13 @@ bool parseTask(const string& t, vector<string>& tasks)
 
 bool parseTargets(TargetMap& nodes, vector<string>& lines)
 {
-    int lineNo = 1;
+    unsigned int lineNo = 1;
     auto it = lines.begin();
 
     while (it != lines.end()) {
         if (it->find_first_not_of(' ') == string::npos) {
-            ++it; continue;
+            ++it; ++lineNo;
+            continue;
         }
 
         auto pos = it->find(":");
@@ -121,8 +123,7 @@ bool parseTargets(TargetMap& nodes, vector<string>& lines)
         nodes.emplace(name, name);
         parseAdjacent(it->substr(pos + 1), nodes.at(name));
 
-        while (++it != lines.end()) {
-            ++lineNo;
+        while (++it != lines.end() && ++lineNo) {
             if (!parseTask(*it, nodes.at(name).tasks))
                 break;
         }
