@@ -140,6 +140,11 @@ bool parseTargets(TargetMap& nodes, vector<string>& lines)
     return true;
 }
 
+/** topological sort */
+void sortTargets(TargetMap& nodes, vector<string>& order)
+{
+    
+}
 
 /**
  * Todo: build graph, topological sort, execute tasks
@@ -157,5 +162,8 @@ int main()
         return 1;
 
     for (auto& p : nodes)
-        cout << p.second << "\n"; 
+        cout << p.second << "\n";
+
+    vector<string> order;
+    sortTargets(nodes, order);
 }
