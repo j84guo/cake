@@ -73,7 +73,7 @@ bool readFile(const string& path, vector<string>& lines)
 
     string line;
     while (getline(file, line))
-        lines.push_back(trimmed(line, " "));
+        lines.push_back(trimmed(line));
 
     file.close();
     return !file.bad();
