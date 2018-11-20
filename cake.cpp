@@ -68,7 +68,7 @@ bool readFile(const string& path, vector<string>& lines)
     return !file.bad();
 }
 
-void errorOnLine(int line, const string& msg)
+void errorOnLine(unsigned int line, const string& msg)
 {
     cerr << "Error: " << msg << " [line " << line << "]\n";
 }
