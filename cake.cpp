@@ -69,6 +69,8 @@ bool parseTargets(vector<Target>& targets, vector<string>& lines)
     auto it = lines.begin();
 
     while (it != lines.end()) {
+        if (!it->size())
+            continue;
         auto pos = it->find(":");
         if ((pos == string::npos) || !pos) {
             errorOnLine(lineNo, "no target");
