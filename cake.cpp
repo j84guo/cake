@@ -57,6 +57,14 @@ ostream& operator<<(ostream& out, const Target& t)
     return out;
 }
 
+string trimmed(const string& str, const string& rem=" ")
+{
+    string::size_type begin = str.find_first_not_of(rem);
+    if (begin == std::string::npos)
+        return "";
+    return str.substr(begin, str.find_last_not_of(rem) - begin + 1);
+}
+
 bool readFile(const string& path, vector<string>& lines)
 {
     ifstream file(path);
@@ -65,7 +73,7 @@ bool readFile(const string& path, vector<string>& lines)
 
     string line;
     while (getline(file, line))
-        lines.push_back(line);
+        lines.push_back(trimmed(line, " "));
 
     file.close();
     return !file.bad();
