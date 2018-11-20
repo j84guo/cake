@@ -76,7 +76,6 @@ bool parseTargets(vector<Target>& targets, vector<string>& lines)
         }
 
         targets.emplace_back(it->substr(0, pos));
-
         while (it + 1 != lines.end()) {
             if ((it + 1)->size()) {
                 if ((it + 1)->at(0) != '\t')
