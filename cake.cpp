@@ -65,7 +65,7 @@ bool parseTargets(vector<Target>& targets, vector<string>& lines)
     auto it = lines.begin();
 
     while (it != lines.end()) {
-        if (!it->size()) {
+        if (it->find_first_not_of(' ') == string::npos) {
             ++it;
             continue;
         }
@@ -78,7 +78,7 @@ bool parseTargets(vector<Target>& targets, vector<string>& lines)
 
         targets.emplace_back(it->substr(0, pos));
         while (++it != lines.end()) {
-            if (!it->size())
+            if (it->find_first_not_of(' ') == string::npos)
                 continue;
             if (it->at(0) != '\t')
                 break;
