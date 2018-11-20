@@ -36,6 +36,8 @@ public:
     friend ostream& operator<<(ostream& out, const Target& t);
 };
 
+typedef unordered_map<string, Target> TargetMap;
+
 ostream& operator<<(ostream& out, const vector<string>& v)
 {
     out << "[";
@@ -99,7 +101,7 @@ bool parseTask(const string& t, vector<string>& tasks)
     return true;
 }
 
-bool parseTargets(vector<Target>& targets, vector<string>& lines)
+bool parseTargets(TargetMap& nodes, vector<string>& lines)
 {
     int lineNo = 1;
     auto it = lines.begin();
@@ -115,12 +117,13 @@ bool parseTargets(vector<Target>& targets, vector<string>& lines)
             return false;
         }
 
-        targets.emplace_back(it->substr(0, pos));
-        parseAdjacent(it->substr(pos + 1), targets.back());
+        string name = it->substr(0, pos);
+        nodes.emplace(name, name);
+        parseAdjacent(it->substr(pos + 1), nodes.at(name));
 
         while (++it != lines.end()) {
             ++lineNo;
-            if (!parseTask(*it, targets.back().tasks))
+            if (!parseTask(*it, nodes.at(name).tasks))
                 break;
         }
     }
@@ -140,13 +143,9 @@ int main()
         return 1;
     }
 
-    vector<Target> targets;
-    if (!parseTargets(targets, lines))
+    TargetMap nodes;
+    if (!parseTargets(nodes, lines))
         return 1;
-
-    unordered_map<string, Target> nodes;
-    for (auto& t : targets)
-        nodes.emplace(t.name, t);
 
     for (auto& p : nodes)
         cout << p.second << "\n"; 
