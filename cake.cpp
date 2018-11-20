@@ -18,7 +18,12 @@ using std::vector;
 using std::getline;
 using std::ostream;
 using std::ifstream;
+using std::unordered_map;
 
+/**
+ * Target is a DAG node; it has a vertex ID (name), some edges (adjacent) and
+ * data (tasks).
+ */
 class Target
 {
     
@@ -82,7 +87,7 @@ void parseAdjacent(string adj, Target& tgt)
         tgt.adjacent.push_back(adj);
 }
 
-/** returns whether to continue */
+/** returns whether to continue parsing current Target */
 bool parseTask(const string& t, vector<string>& tasks)
 {
     if (t.find_first_not_of(' ') == string::npos)
@@ -123,6 +128,10 @@ bool parseTargets(vector<Target>& targets, vector<string>& lines)
     return true;
 }
 
+
+/**
+ * Todo: build graph, topological sort, execute tasks
+ */
 int main()
 {
     vector<string> lines;
@@ -135,6 +144,10 @@ int main()
     if (!parseTargets(targets, lines))
         return 1;
 
+    unordered_map<string, Target> nodes;
     for (auto& t : targets)
-        cout << t << "\n";
+        nodes.emplace(t.name, t);
+
+    for (auto& p : nodes)
+        cout << p.second << "\n"; 
 }
