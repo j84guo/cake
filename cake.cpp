@@ -2,6 +2,7 @@
 #include <vector>
 #include <fstream>
 #include <iostream>
+#include <unordered_map>
 
 #include <stdio.h>
 #include <unistd.h>
@@ -24,20 +25,28 @@ class Target
 public:
     Target(const string& name): name(name) { };
     string name;
+    vector<string> adjacent;
     vector<string> tasks;
 
     friend ostream& operator<<(ostream& out, const Target& t);
 };
 
-ostream& operator<<(ostream& out, const Target& t)
+ostream& operator<<(ostream& out, const vector<string>& v)
 {
-    out << t.name << ": [";
-    for (auto it=t.tasks.begin(); it!=t.tasks.end(); ++it) {
+    out << "[";
+    for (auto it=v.begin(); it!=v.end(); ++it) {
         out << *it;
-        if (it + 1 != t.tasks.end())
+        if (it + 1 != v.end())
             out << ", ";
     }
     out << "]";
+    return out;
+}
+
+ostream& operator<<(ostream& out, const Target& t)
+{
+    out << t.name << ": " << t.tasks << ", " << t.adjacent;
+    return out;
 }
 
 bool readFile(const string& path, vector<string>& lines)
@@ -59,15 +68,40 @@ void errorOnLine(int line, const string& msg)
     cerr << "Error: " << msg << " [line " << line << "]\n";
 }
 
+void parseAdjacent(string adj, Target& tgt)
+{
+    string::size_type pos;
+    while ((pos = adj.find(" ")) != string::npos) {
+        string token = adj.substr(0, pos);
+        adj.erase(0, pos + 1);
+
+        if (token.size())
+            tgt.adjacent.push_back(token);
+    }
+    if (adj.size())
+        tgt.adjacent.push_back(adj);
+}
+
+/** returns whether to continue */
+bool parseTask(const string& t, vector<string>& tasks)
+{
+    if (t.find_first_not_of(' ') == string::npos)
+        return true;
+    if (t.at(0) != '\t')
+        return false;
+
+    tasks.push_back(t.substr(1));
+    return true;
+}
+
 bool parseTargets(vector<Target>& targets, vector<string>& lines)
 {
-    int lineNo=1;
+    int lineNo = 1;
     auto it = lines.begin();
 
     while (it != lines.end()) {
         if (it->find_first_not_of(' ') == string::npos) {
-            ++it;
-            continue;
+            ++it; continue;
         }
 
         auto pos = it->find(":");
@@ -77,14 +111,12 @@ bool parseTargets(vector<Target>& targets, vector<string>& lines)
         }
 
         targets.emplace_back(it->substr(0, pos));
+        parseAdjacent(it->substr(pos + 1), targets.back());
+
         while (++it != lines.end()) {
-            if (it->find_first_not_of(' ') == string::npos)
-                continue;
-            if (it->at(0) != '\t')
-                break;
-            targets.back()
-                .tasks.push_back(it->substr(1));
             ++lineNo;
+            if (!parseTask(*it, targets.back().tasks))
+                break;
         }
     }
 
