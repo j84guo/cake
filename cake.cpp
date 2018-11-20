@@ -76,16 +76,16 @@ bool parseTargets(vector<Target>& targets, vector<string>& lines)
         }
 
         targets.emplace_back(it->substr(0, pos));
-        while (it + 1 != lines.end()) {
-            if ((it + 1)->size()) {
-                if ((it + 1)->at(0) != '\t')
-                    break;
-                targets.back().tasks.push_back((it + 1)->substr(1));
-            }
-            ++it; ++lineNo;
+        while (++it != lines.end()) {
+            if (!it->size())
+                continue;
+            if (it->at(0) != '\t')
+                break;
+            targets.back()
+                .tasks
+                .push_back(it->substr(1));
+            ++lineNo;
         }
-
-        ++it; ++lineNo;
     }
 
     return true;
