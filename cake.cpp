@@ -22,16 +22,12 @@ class Target
 {
     
 public:
-    Target(const string& name);
+    Target(const string& name): name(name) { };
     string name;
     vector<string> tasks;
 
     friend ostream& operator<<(ostream& out, const Target& t);
 };
-
-Target::Target(const string& name):
-    name(name)
-{ }
 
 ostream& operator<<(ostream& out, const Target& t)
 {
@@ -69,8 +65,11 @@ bool parseTargets(vector<Target>& targets, vector<string>& lines)
     auto it = lines.begin();
 
     while (it != lines.end()) {
-        if (!it->size())
+        if (!it->size()) {
+            ++it;
             continue;
+        }
+
         auto pos = it->find(":");
         if ((pos == string::npos) || !pos) {
             errorOnLine(lineNo, "no target");
@@ -84,8 +83,7 @@ bool parseTargets(vector<Target>& targets, vector<string>& lines)
             if (it->at(0) != '\t')
                 break;
             targets.back()
-                .tasks
-                .push_back(it->substr(1));
+                .tasks.push_back(it->substr(1));
             ++lineNo;
         }
     }
