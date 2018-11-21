@@ -20,7 +20,7 @@ using std::string;
 using std::vector; /** extendable array */
 using std::getline; /** reads a line from a file and puts it in a string */
 using std::ostream;
-using std::ifstream; /** class reprenting a file to read */
+using std::ifstream; /** class representing a file to read */
 using std::unordered_map; /** C++'s hash table */
 using std::unordered_set; /** C++'s hash set */
 
@@ -62,17 +62,17 @@ ostream& operator<<(ostream& out, const Target& t)
     return out;
 }
 
-/** return the same string with spaces trimmed from the left and right */
+/** return a COPY of the string with spaces trimmed from the left and right */
 string trimmed(const string& str, const string& rem=" ")
 {
     /** C++ containers each have a <container>::size_type, which is a nested
         numeric type big enough to describe the container's size (think of
         string::size_type as an int)
 
-        the trim function 1) finds the FIRST occurence (integer position in the
-        string) of rem (the type of character we'd like to remove) then 2)
-        finds the LAST occurence of rem 3) the substring [FIRST to LAST] is
-        what we return...
+        This trim function 1) finds the FIRST occurence (integer position in
+        the string) of a char NOT in rem (string containing the char's we'd
+        like to trim off) then 2) finds the LAST occurence of a chat NOT in rem
+        3) the substring [FIRST, LAST] is what we return
 
         @EXTRA:
         https://en.cppreference.com/w/cpp/string/basic_string/find_first_not_of
@@ -81,7 +81,7 @@ string trimmed(const string& str, const string& rem=" ")
     string::size_type begin = str.find_first_not_of(rem);
 
     /** No characters besides rem exists, return empty
-        Note string::npos == -1 indicates "couldn't be found" */
+        Note string::npos is a constant which indicates "couldn't be found" */
     if (begin == string::npos)
         return "";
 
@@ -101,7 +101,7 @@ bool readFile(const string& path, vector<string>& lines)
     while (getline(file, line))
         lines.push_back(trimmed(line));
 
-    file.close();
+    /** return whether read succeded, let destructor close the file (RAII) */
     return !file.bad();
 }
 
@@ -132,31 +132,62 @@ void taskError(const string& task)
     vector
 
     Therefore, the adjacent vector contains the NAMES of the targets that the
-    current one depends on, i.e. the NEIGHBOURS in the DEPENDENCY DAG */
+    current one depends on, i.e. the NEIGHBOURS in the DEPENDENCY DAG
+
+    e.g.
+    myTarget: dep1 dep2
+        task1
+        task2
+
+    Here, we would add tokens dep1 and dep2 to Target::adjacent */
 void parseAdjacent(string adj, Target& tgt)
 {
     string::size_type pos;
+
+    /** while there are still spaces */
     while ((pos = adj.find(" ")) != string::npos) {
+        /** take the string from index 0 to the first space */
         string token = adj.substr(0, pos);
+
+        /** erase it AND the space */
         adj.erase(0, pos + 1);
 
+        /** if the token extracted is non-empty, add to the adjacency vector */
         if (token.size())
             tgt.adjacent.push_back(token);
     }
+
+    /** don't forget the last token! */
     if (adj.size())
         tgt.adjacent.push_back(adj);
 }
 
 /** a task is a command listed with a tab (see Cakefile)... all we do here is
     1) take non-empty 2) strings which start with a tab and 3) insert them
-    into the target's tasks vector */
+    into the target's tasks vector
+    
+    returns whether the current target is fully parsed or not
+
+    e.g.
+    myTarget: dep1 dep2
+        task1
+
+        task2
+        task3
+
+    Here, we parse the whole indented block (skipping empty/space-only lines),
+    adding task1, task2 and task3 to Target::tasks returning false at task3 */
 bool parseTask(const string& t, vector<string>& tasks)
 {
+    /** skip empty lines or lines with only spaces */
     if (t.find_first_not_of(' ') == string::npos)
         return true;
+
+    /** if line doesn't start with tab, it's not part of the current target */
     if (t.at(0) != '\t')
         return false;
 
+    /** read the task line, skipping the leading tab character */
     tasks.push_back(t.substr(1));
     return true;
 }
@@ -164,7 +195,15 @@ bool parseTask(const string& t, vector<string>& tasks)
 /** build a map of Targets by parsing the Cakefile lines, a line that 1) is not
     part of a target's indented tasks block 2) is non-empty and 3) does not
     have a colon is an ERROR! If 1) == true && 2) == true && we FOUND a colon,
-    interpret that line as a new target and place it in the map */
+    interpret that line as a new target and place it in the map
+
+    e.g.
+    Once we reach a line like this:
+    myTarget: dep1 dep2
+        ...tasks...
+
+    Then we call parseAdjacent on the first line parseTask in a loop to read
+    the indented ...tasks... block */
 bool parseTargets(TargetMap& nodes, vector<string>& lines)
 {
     unsigned int lineNo = 1;
