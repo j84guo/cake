@@ -179,19 +179,17 @@ bool parseTargets(TargetMap& nodes, vector<string>& lines)
 
         string name = it->substr(0, pos);
 
-        /**
-         * emplace() is a method which adds to the hash table
-         * (TargetMap == unordered_map == hash table)
-         *
-         * It is a VARIADIC function where the first argument is the KEY and
-         * all subsequent arguments are forwarded to the constructor of the
-         * Target which will be created in the hash table
-         *
-         * The python equivalent:
-         *
-         * nodes = dict()
-         * nodes[name] = Target(name) # notice Target::Target() accepts name
-         */
+        /** emplace() is a method which adds to the hash table
+            (TargetMap == unordered_map == hash table)
+
+            It is a VARIADIC function where the first argument is the KEY and
+            all subsequent arguments are forwarded to the constructor of the
+            Target which will be created in the hash table
+
+            The python equivalent:
+
+            nodes = dict()
+            nodes[name] = Target(name) # notice Target::Target() accepts name */
         nodes.emplace(name, name);
         parseAdjacent(it->substr(pos + 1), nodes.at(name));
 
@@ -251,7 +249,7 @@ bool doTask(string task)
 
     /** make the C++ compiler happy by casting */
     char * const argv[] = {
-        (char *) "/bin/bash", 
+        (char *) "/bin/bash",
         (char *) "-c",
         (char *) task.c_str(),
         NULL
@@ -318,8 +316,7 @@ bool processTargets(TargetMap& nodes, vector<string>& order)
     return true;
 }
 
-/**
- ******************************************************************************
+/*******************************************************************************
  * @SUMMARY:
  *
  * 1. read the Cakefile
@@ -328,7 +325,7 @@ bool processTargets(TargetMap& nodes, vector<string>& order)
  * 4. iterate through the "order" vector, which represents the order in which
  *    tasks should be done to satisfy the dependencies you defined
  *
- ******************************************************************************
+ *******************************************************************************
  * @TIPS:
  *
  * (1)
@@ -366,7 +363,7 @@ bool processTargets(TargetMap& nodes, vector<string>& order)
  * log an error message. Basically the act of DOING and the CHECKING of its
  * result are combined into a condition... Yes this is strange but the spirit
  * of C (and to an extent C++) is generally to be more terse if possible.
- * 
+ *
  * @FunFact:
  * In a way, Java's verbose naming styles are a REACTION to some of the
  * difficulties programming in C, where a function may be called something
@@ -387,7 +384,7 @@ bool processTargets(TargetMap& nodes, vector<string>& order)
  * returned!
  *
  * cout << "a" << "b";
- * is equivalent to 
+ * is equivalent to
  * ( cout << "a" ) << "b"
  *
  * i.e. the NORMAL << operator returns the output stream! This is what makes it
@@ -399,7 +396,7 @@ bool processTargets(TargetMap& nodes, vector<string>& order)
  * std::string has a method c_str() which returns a C-style string, i.e. char *
  * This is useful because many of the operating system API's (e.g. execvp) are
  * desgined to work with C-strings.
- */
+ ******************************************************************************/
 int main()
 {
     vector<string> lines;
