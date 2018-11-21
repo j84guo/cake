@@ -24,10 +24,8 @@ using std::ifstream;
 using std::unordered_map;
 using std::unordered_set;
 
-/**
- * Target is a DAG node; it has a vertex ID (name), some edges (adjacent) and
- * data (tasks).
- */
+/** Target is a DAG node; it has a vertex ID (name), some edges (adjacent) and
+   data (tasks). */
 class Target
 {
 public:
@@ -222,9 +220,9 @@ bool doTask(string task)
 
     /** make the C++ compiler happy by casting */
     char * const argv[] = {
-        (char*) "/bin/bash", 
-        (char*) "-c",
-        (char*) task.c_str(),
+        (char *) "/bin/bash", 
+        (char *) "-c",
+        (char *) task.c_str(),
         NULL
     };
 
@@ -286,11 +284,81 @@ bool processTargets(TargetMap& nodes, vector<string>& order)
 }
 
 /**
+ ******************************************************************************
+ * @SUMMARY:
+ *
  * 1. read the Cakefile
  * 2. build a map of Target objects from the lines
  * 3. do a topological sort on the map (the map is a DAG)
  * 4. iterate through the "order" vector, which represents the order in which
  *    tasks should be done to satisfy the dependencies you defined
+ *
+ ******************************************************************************
+ * @TIPS:
+ *
+ * (1)
+ * Notice objects are often passed by reference when changes need to be visible
+ * to the caller, e.g. readFile() accepts the vector by reference!
+ *
+ * (2)
+ * Keyword "auto" is like "var" or "let" in other languages, it's used when we
+ * don't want to type a long type name, i.e. the compiler "infers" the type.
+ *
+ * (3)
+ * TargetMap and StringSet are aliases for templated classes
+ * unordered_map<string, Target> and unordered_set<string> for convenience.
+ *
+ * (4)
+ * Function "perror()" is from the C std library, it prints a message for the
+ * current value of errno. What is errno you may ask?? Good question!! It is a
+ * global numeric variable mandated by both the POSIX operating system standard
+ * as well as the C standard, which is used to report errors occuring in system
+ * calls. E.g. after trying to opening a file with a bad path, errno may be set
+ * to EBADF (or something, I don't remember)... The point is perror() uses the
+ * value of errno to print an associated string message. A bunch of error codes
+ * are defined as macros in <errno.h>.
+ *
+ * [TLDR] If file read fails, we call perror(), which will print a relevant
+ * message since I/O errors are reported via setting errno by the underlying
+ * system calls used by ifstream. If this doesn't make sense to you, don't
+ * worry!! The fantastic world of system programming in C/C++ can be learned in
+ * good time...
+ *
+ * (5)
+ * The convention if (!doSomething())... is inherited from C and also commonly
+ * used in C++. Basically doSomething() is a function returning a bool true for
+ * success, false for faliure. If it fails (! operator) then we should probably
+ * log an error message. Basically the act of DOING and the CHECKING of its
+ * result are combined into a condition... Yes this is strange but the spirit
+ * of C (and to an extent C++) is generally to be more terse if possible.
+ * 
+ * @FunFact:
+ * In a way, Java's verbose naming styles are a REACTION to some of the
+ * difficulties programming in C, where a function may be called something
+ * obscure like htons() (host to network short is a function in the Unix
+ * sockets API <arpa/inet.h>)
+ *
+ * (6)
+ * the "friend ostream& operator<<..." declaration in class Target is kind of
+ * like __str__ from Python, except here it is a FUNCTION which prints a
+ * Target instance. The "friend" keyword means the function can access PRIVATE
+ * members of the Target and is a convention used in C++ (although yes, in
+ * this case our class has no private data... but if we added any it could be
+ * printed by the friend function)
+ *
+ * (7)
+ * How come the operator<< functions RETURN an ostream& ???? Notice that those
+ * functions accept an ostream& out, well that same input parameter is
+ * returned!
+ *
+ * cout << "a" << "b";
+ * is equivalent to 
+ * ( cout << "a" ) << "b"
+ *
+ * i.e. the << operator returns the output stream! This is what makes it
+ * possible to CHAIN multiple << together. Hence when overriding <<, we must
+ * return an ostream& to be able to chain multiple prints together when using
+ * our overloaded operators.
  */
 int main()
 {
