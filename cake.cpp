@@ -201,13 +201,10 @@ void sortTargets(TargetMap& nodes, vector<string>& order)
 bool doTask(string task)
 {
     cout << "@" << task << endl;
-
-    char *cmd = new char[task.size() + 1];
-    strcpy(cmd, task.c_str());
     char * const argv[] = {
         (char*) "/bin/bash", 
         (char*) "-c",
-        cmd,
+        (char*) task.c_str(),
         NULL
     };
 
@@ -229,7 +226,6 @@ bool doTask(string task)
             res = (status == 0);
     }
 
-    delete[] cmd;
     return res;
 }
 
