@@ -1,7 +1,7 @@
-cake.out:
+cake.out: 
 	g++ -o $@ -std=c++17 -Wall cake.cpp
 
 clean:
 	rm -f *.out target* dependency*
 
-.PHONY: clean
+.PHONY: clean cake.out
