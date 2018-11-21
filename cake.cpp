@@ -37,10 +37,11 @@ public:
     friend ostream& operator<<(ostream& out, const Target& t);
 };
 
-/** for convenience */
+/** to type less, create aliases for these templated classes */
 typedef unordered_set<string> StringSet;
 typedef unordered_map<string, Target> TargetMap;
 
+/** overloaded output operator prints a vector of strings */
 ostream& operator<<(ostream& out, const vector<string>& v)
 {
     out << "[";
@@ -53,20 +54,26 @@ ostream& operator<<(ostream& out, const vector<string>& v)
     return out;
 }
 
+/** overloaded output operator prints a Target (using the overload above, since
+    a Target contains 2 vectors) */
 ostream& operator<<(ostream& out, const Target& t)
 {
     out << t.name << ": " << t.tasks << ", " << t.adjacent;
     return out;
 }
 
+/** return the same string with spaces trimmed from the left and right */
 string trimmed(const string& str, const string& rem=" ")
 {
+    /** C++ containers each have a <container>::size_type, which is a nested
+        numeric type big enough to describe the container's size */
     string::size_type begin = str.find_first_not_of(rem);
     if (begin == std::string::npos)
         return "";
     return str.substr(begin, str.find_last_not_of(rem) - begin + 1);
 }
 
+/** read each line of a file and put its trimmed lines into a vector */
 bool readFile(const string& path, vector<string>& lines)
 {
     ifstream file(path);
@@ -81,21 +88,25 @@ bool readFile(const string& path, vector<string>& lines)
     return !file.bad();
 }
 
+/** print an error and line number */
 void lineError(unsigned int line, const string& msg)
 {
     cerr << "Error: " << msg << " [line " << line << "]\n";
 }
 
+/** print an error for a target */
 void targetError(const string& target)
 {
     cerr << "Error: processing target [" << target << "]\n";
 }
 
+/** print an error for a task */
 void taskError(const string& task)
 {
     cerr << "Error: processing task [" << task << "]\n";
 }
 
+/** "adjacent" refers to stuff after the colon, these are dependencies */
 void parseAdjacent(string adj, Target& tgt)
 {
     string::size_type pos;
@@ -110,7 +121,7 @@ void parseAdjacent(string adj, Target& tgt)
         tgt.adjacent.push_back(adj);
 }
 
-/** returns whether to continue parsing current Target */
+/** a task is a command listed with a tab (see Cakefile) */
 bool parseTask(const string& t, vector<string>& tasks)
 {
     if (t.find_first_not_of(' ') == string::npos)
@@ -122,6 +133,7 @@ bool parseTask(const string& t, vector<string>& tasks)
     return true;
 }
 
+/** build a map of Targets by parsing the Cakefile lines */
 bool parseTargets(TargetMap& nodes, vector<string>& lines)
 {
     unsigned int lineNo = 1;
@@ -152,6 +164,10 @@ bool parseTargets(TargetMap& nodes, vector<string>& lines)
     return true;
 }
 
+/** DFS (depth first search), push the current target into the vector "order"
+    after parsing all its adjacent nodes (dependencies!!) first... this makes
+    sense since we can't finish the current target until those dependencies are
+    done first */
 void topologicalSort
 (
     TargetMap& nodes,
@@ -170,6 +186,8 @@ void topologicalSort
     order.push_back(id);
 }
 
+/** one way to do topological sort is doing a DFS on each connected component
+    in the DAG, that's why we iterate through the TargetMap */
 void sortTargets(TargetMap& nodes, vector<string>& order)
 {
     StringSet visited;
@@ -177,6 +195,9 @@ void sortTargets(TargetMap& nodes, vector<string>& order)
         topologicalSort(nodes, p.first, visited, order);
 }
 
+/** the stuff in this function uses Unix "system calls" to execute tasks...
+    specifically we first "fork" a child process and let the process "exec"
+    the command string using the BASH shell, i.e. bash -c "some command" */
 bool doTask(string task)
 {
     cout << "@" << task << endl;
@@ -212,6 +233,7 @@ bool doTask(string task)
     return res;
 }
 
+/** loop through all tasks in the target */
 bool processTarget(Target& tgt)
 {
     for (const string& task : tgt.tasks) {
@@ -224,6 +246,7 @@ bool processTarget(Target& tgt)
     return true;
 }
 
+/** loop through all targets */
 bool processTargets(TargetMap& nodes, vector<string>& order)
 {
     for (const string& name : order) {
@@ -237,7 +260,11 @@ bool processTargets(TargetMap& nodes, vector<string>& order)
 }
 
 /**
- * Todo: build graph, topological sort, execute tasks
+ * 1. read the Cakefile
+ * 2. build a map of Target objects from the lines
+ * 3. do a topological sort on the map (the map is a DAG)
+ * 4. iterate through the "order" vector, which represents the order in which
+ *    tasks should be done to satisfy the dependencies you defined
  */
 int main()
 {
