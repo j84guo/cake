@@ -201,6 +201,8 @@ void sortTargets(TargetMap& nodes, vector<string>& order)
 bool doTask(string task)
 {
     cout << "@" << task << endl;
+
+    /** make the C++ compiler happy by casting */
     char * const argv[] = {
         (char*) "/bin/bash", 
         (char*) "-c",
