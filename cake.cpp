@@ -123,11 +123,16 @@ void taskError(const string& task)
     cerr << "Error: processing task [" << task << "]\n";
 }
 
-/** "adjacent" refers to stuff after the colon, these are dependencies...
-    all we're doing here is 1) taking the line after the colon, splitting
+/** "adjacent" refers to tokens after the colon in the Cakefile, these are
+    dependencies... i.e. other targets the current one depends on. All we're
+    doing here is 1) taking the line after the colon 2) splitting that line
     into tokens based on spaces (C++ has no std::split() so we make our own)
     and inserting each token (i.e. the string name of a target that the current
-    target depends on) and insert it into the target's adjacent vector*/
+    target depends on) and 3) insert each token into the target's adjacent
+    vector
+
+    Therefore, the adjacent vector contains the NAMES of the targets that the
+    current one depends on, i.e. the NEIGHBOURS in the DEPENDENCY DAG */
 void parseAdjacent(string adj, Target& tgt)
 {
     string::size_type pos;
