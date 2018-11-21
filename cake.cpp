@@ -161,6 +161,20 @@ bool parseTargets(TargetMap& nodes, vector<string>& lines)
         }
 
         string name = it->substr(0, pos);
+
+        /**
+         * emplace() is a method which adds to the hash table
+         * (TargetMap == unordered_map == hash table)
+         *
+         * It is a VARIADIC function where the first argument is the KEY and
+         * all subsequent arguments are forwarded to the constructor of the
+         * Target which will be created in the hash table
+         *
+         * The python equivalent:
+         *
+         * nodes = dict()
+         * nodes[name] = Target(name) # notice Target::Target() accepts name
+         */
         nodes.emplace(name, name);
         parseAdjacent(it->substr(pos + 1), nodes.at(name));
 
