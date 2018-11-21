@@ -410,6 +410,7 @@ int main()
         return 1;
     }
 
+    /** (1) uncomment this block, it'll print the lines read from Cakefile */
     // for (string& l : lines)
     //    cout << l << "\n";
     // return 0;
@@ -418,6 +419,7 @@ int main()
     if (!parseTargets(nodes, lines))
         return 1;
 
+    /** (2) prints the Target objects parsed from the vector of file lines */
     // for (auto& p : nodes)
     //     cout << "(" << p.first << ") " << p.second << "\n";
     // return 0;
@@ -425,6 +427,7 @@ int main()
     vector<string> order;
     sortTargets(nodes, order);
 
+    /** prints the order targets will be processed (topological) */
     cout << "[...Target Order...]\n";
     for (auto& name : order)
         cout << name << "\n";
