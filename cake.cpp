@@ -345,7 +345,7 @@ bool doTask(string task)
     }
 
     /** like Make, a command is successful if it exited with code 0 */
-    return status == 0;
+    return WIFEXITED(status) && WEXITSTATUS(status) == 0;
 }
 
 /** loop through all tasks in the target */
