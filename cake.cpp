@@ -199,9 +199,8 @@ void topologicalSort
         return;
 
     visited.emplace(id);
-    for (const string& nb : nodes.at(id).adjacent) {
-        topologicalSort(nodes, nb, visited, order);
-    }
+    for (const string& adj : nodes.at(id).adjacent)
+        topologicalSort(nodes, adj, visited, order);
     order.push_back(id);
 }
 
