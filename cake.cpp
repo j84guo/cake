@@ -106,7 +106,16 @@ bool readFile(const string& path, vector<string>& lines)
     while (getline(file, line))
         lines.push_back(trimmed(line));
 
-    /** return whether read succeded, let destructor close the file (RAII) */
+    /** return whether read succeded, let destructor close the file (RAII)
+
+        @EXTRA: There are 2 ways to close a file; either explicitly by calling
+        file.close() or implcitly via the destructor. Usually in C++ just let
+        the destructor do it. See these links for some interesting discussion.
+
+        (Specifically, Martin York's answer) https://stackoverflow.com/questions/748014/do-i-need-to-manually-close-an-ifstream
+        (Again, Martin York's answer) https://codereview.stackexchange.com/questions/540/open-write-and-close-a-file
+        https://stackoverflow.com/questions/16608783/handling-c-read-only-file-close-errors
+        */
     return !file.bad();
 }
 
