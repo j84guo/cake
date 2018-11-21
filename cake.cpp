@@ -327,7 +327,7 @@ bool processTargets(TargetMap& nodes, vector<string>& order)
  * (5)
  * The convention if (!doSomething())... is inherited from C and also commonly
  * used in C++. Basically doSomething() is a function returning a bool true for
- * success, false for faliure. If it fails (! operator) then we should probably
+ * success, false for failure. If it fails (! operator) then we should probably
  * log an error message. Basically the act of DOING and the CHECKING of its
  * result are combined into a condition... Yes this is strange but the spirit
  * of C (and to an extent C++) is generally to be more terse if possible.
@@ -355,10 +355,15 @@ bool processTargets(TargetMap& nodes, vector<string>& order)
  * is equivalent to 
  * ( cout << "a" ) << "b"
  *
- * i.e. the << operator returns the output stream! This is what makes it
+ * i.e. the NORMAL << operator returns the output stream! This is what makes it
  * possible to CHAIN multiple << together. Hence when overriding <<, we must
  * return an ostream& to be able to chain multiple prints together when using
- * our overloaded operators.
+ * our OVERLOADED operators.
+ *
+ * (8)
+ * std::string has a method c_str() which returns a C-style string, i.e. char *
+ * This is useful because many of the operating system API's (e.g. execvp) are
+ * desgined to work with C-strings.
  */
 int main()
 {
