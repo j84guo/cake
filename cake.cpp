@@ -1,3 +1,4 @@
+/** C++ std library */
 #include <string>
 #include <vector>
 #include <fstream>
@@ -5,6 +6,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
+/** C std library and Unix headers */
 #include <string.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -210,25 +212,35 @@ bool doTask(string task)
         NULL
     };
 
-    bool res;
+    /** fork() and exec*() are the most famous Unix system calls... They
+        separate the creation of a child process from loading an executable
+        from disk... After many decades, this process creation interface has
+        remained more or less unchanged, an example of the quality of Unix's
+        design */
     int status;
     pid_t child = fork();
 
     if (child < 0) {
+        /** child creation failed */
         perror("fork");
-        res = false;
+        return false;
     } else if (!child) {
+        /** [THIS IS THE CHILD!] exec the command, which overwrites the child
+            process with the invoked executable, e.g. /bin/ls; returning at all
+            from execvp signifies error, so we exit(1) if execvp returns */
         execvp("bash", argv);
         perror("execvp");
         exit(1);
-    } else {
-        if (wait(&status) == -1)
-            res = false;
-        else
-            res = (status == 0);
     }
 
-    return res;
+    /** wait for the child to finish an collect it's exit code */
+    if (wait(&status) == -1) {
+        perror("wait");
+        return false;
+    }
+
+    /** like Make, a command is successful if it exited with code 0 */
+    return status == 0;
 }
 
 /** loop through all tasks in the target */
