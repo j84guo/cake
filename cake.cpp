@@ -3,11 +3,12 @@
 #include <fstream>
 #include <iostream>
 #include <unordered_map>
+#include <unordered_set>
 
+#include <string.h>
 #include <stdio.h>
 #include <unistd.h>
-#include <dirent.h>
-#include <sys/stat.h>
+#include <sys/wait.h>
 #include <sys/types.h>
 
 using std::endl;
@@ -19,6 +20,7 @@ using std::getline;
 using std::ostream;
 using std::ifstream;
 using std::unordered_map;
+using std::unordered_set;
 
 /**
  * Target is a DAG node; it has a vertex ID (name), some edges (adjacent) and
@@ -26,7 +28,6 @@ using std::unordered_map;
  */
 class Target
 {
-    
 public:
     Target(const string& name): name(name) { };
     string name;
@@ -37,6 +38,7 @@ public:
 };
 
 /** for convenience */
+typedef unordered_set<string> StringSet;
 typedef unordered_map<string, Target> TargetMap;
 
 ostream& operator<<(ostream& out, const vector<string>& v)
@@ -79,9 +81,19 @@ bool readFile(const string& path, vector<string>& lines)
     return !file.bad();
 }
 
-void errorOnLine(unsigned int line, const string& msg)
+void lineError(unsigned int line, const string& msg)
 {
     cerr << "Error: " << msg << " [line " << line << "]\n";
+}
+
+void targetError(const string& target)
+{
+    cerr << "Error: processing target [" << target << "]\n";
+}
+
+void taskError(const string& task)
+{
+    cerr << "Error: processing task [" << task << "]\n";
 }
 
 void parseAdjacent(string adj, Target& tgt)
@@ -123,7 +135,7 @@ bool parseTargets(TargetMap& nodes, vector<string>& lines)
 
         auto pos = it->find(":");
         if ((pos == string::npos) || !pos) {
-            errorOnLine(lineNo, "no target");
+            lineError(lineNo, "no target");
             return false;
         }
 
@@ -140,10 +152,88 @@ bool parseTargets(TargetMap& nodes, vector<string>& lines)
     return true;
 }
 
-/** topological sort */
+void topologicalSort
+(
+    TargetMap& nodes,
+    const string& id,
+    StringSet& visited,
+    vector<string>& order
+)
+{
+    if (visited.find(id) != visited.end())
+        return;
+
+    visited.emplace(id);
+    for (const string& nb : nodes.at(id).adjacent) {
+        topologicalSort(nodes, nb, visited, order);
+    }
+    order.push_back(id);
+}
+
 void sortTargets(TargetMap& nodes, vector<string>& order)
 {
-    
+    StringSet visited;
+    for (auto& p : nodes)
+        topologicalSort(nodes, p.first, visited, order);
+}
+
+bool doTask(string task)
+{
+    cout << "@" << task << endl;
+
+    char *cmd = new char[task.size() + 1];
+    strcpy(cmd, task.c_str());
+    char * const argv[] = {
+        (char*) "/bin/bash", 
+        (char*) "-c",
+        cmd,
+        NULL
+    };
+
+    bool res;
+    int status;
+    pid_t child = fork();
+
+    if (child < 0) {
+        perror("fork");
+        res = false;
+    } else if (!child) {
+        execvp("bash", argv);
+        perror("execvp");
+        exit(1);
+    } else {
+        if (wait(&status) == -1)
+            res = false;
+        else
+            res = (status == 0);
+    }
+
+    delete[] cmd;
+    return res;
+}
+
+bool processTarget(Target& tgt)
+{
+    for (const string& task : tgt.tasks) {
+        if (!doTask(task)) {
+            taskError(task);
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool processTargets(TargetMap& nodes, vector<string>& order)
+{
+    for (const string& name : order) {
+        if (!processTarget(nodes.at(name))) {
+            targetError(name);
+            return false;
+        }
+    }
+
+    return true;
 }
 
 /**
@@ -161,9 +251,13 @@ int main()
     if (!parseTargets(nodes, lines))
         return 1;
 
-    for (auto& p : nodes)
-        cout << p.second << "\n";
-
     vector<string> order;
     sortTargets(nodes, order);
+
+    cout << "[...Target Order...]\n";
+    for (auto& name : order)
+        cout << name << "\n";
+
+    cout << "[...Processing...]\n";
+    return processTargets(nodes, order) ? 0 : 1;
 }
