@@ -7,8 +7,8 @@
 #include <unordered_set>
 
 /** C std library and Unix headers (mainly used in function doTask()) */
-#include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <unistd.h>
 #include <sys/wait.h>
 #include <sys/types.h>
