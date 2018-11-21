@@ -108,7 +108,11 @@ void taskError(const string& task)
     cerr << "Error: processing task [" << task << "]\n";
 }
 
-/** "adjacent" refers to stuff after the colon, these are dependencies */
+/** "adjacent" refers to stuff after the colon, these are dependencies...
+    all we're doing here is 1) taking the line after the colon, splitting
+    into tokens based on spaces (C++ has no std::split() so we make our own)
+    and inserting each token (i.e. the string name of a target that the current
+    target depends on) and insert it into the target's adjacent vector*/
 void parseAdjacent(string adj, Target& tgt)
 {
     string::size_type pos;
@@ -123,7 +127,9 @@ void parseAdjacent(string adj, Target& tgt)
         tgt.adjacent.push_back(adj);
 }
 
-/** a task is a command listed with a tab (see Cakefile) */
+/** a task is a command listed with a tab (see Cakefile)... all we do here is
+    1) take non-empty 2) strings which start with a tab and 3) insert them
+    into the target's tasks vector */
 bool parseTask(const string& t, vector<string>& tasks)
 {
     if (t.find_first_not_of(' ') == string::npos)
@@ -135,7 +141,10 @@ bool parseTask(const string& t, vector<string>& tasks)
     return true;
 }
 
-/** build a map of Targets by parsing the Cakefile lines */
+/** build a map of Targets by parsing the Cakefile lines, a line that 1) is not
+    part of a target's indented tasks block 2) is non-empty and 3) does not
+    have a colon is an ERROR! If 1) == true && 2) == true && we FOUND a colon,
+    interpret that line as a new target and place it in the map */
 bool parseTargets(TargetMap& nodes, vector<string>& lines)
 {
     unsigned int lineNo = 1;
