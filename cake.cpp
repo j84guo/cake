@@ -324,7 +324,7 @@ bool doTask(string task)
     int status;
     pid_t child = fork();
 
-    if (child < 0) {
+    if (child == -1) {
         /** [THIS IS THE PARENT!] child creation failed */
         perror("fork");
         return false;
