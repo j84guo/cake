@@ -25,7 +25,7 @@ using std::unordered_map; /** C++'s hash table */
 using std::unordered_set; /** C++'s hash set */
 
 /** Target is a DAG node; it has a vertex ID (name), some edges (adjacent) and
-   data (tasks). */
+    data (tasks). */
 class Target
 {
 public:
@@ -37,11 +37,16 @@ public:
     friend ostream& operator<<(ostream& out, const Target& t);
 };
 
-/** to type less, create aliases for these templated classes */
+/** to type less, create shorter aliases for these templated class names */
 typedef unordered_set<string> StringSet;
 typedef unordered_map<string, Target> TargetMap;
 
-/** overloaded output operator prints a vector of strings */
+/** overloaded output operator prints a vector of strings. Note that
+    std::ostream is the TYPE of the cout object! In fact, defining this
+    operator overload allows us to say: cout << someVector
+
+    Why does this function also RETURN an ostream?? See the comments above
+    main() */
 ostream& operator<<(ostream& out, const vector<string>& v)
 {
     out << "[";
