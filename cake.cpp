@@ -208,7 +208,7 @@ bool doTask(string task)
             res = (status == 0);
     }
 
-    delete[] cmd;
+    // delete[] cmd;
     return res;
 }
 
