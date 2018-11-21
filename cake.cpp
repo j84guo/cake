@@ -66,10 +66,27 @@ ostream& operator<<(ostream& out, const Target& t)
 string trimmed(const string& str, const string& rem=" ")
 {
     /** C++ containers each have a <container>::size_type, which is a nested
-        numeric type big enough to describe the container's size */
+        numeric type big enough to describe the container's size (think of
+        string::size_type as an int)
+
+        the trim function 1) finds the FIRST occurence (integer position in the
+        string) of rem (the type of character we'd like to remove) then 2)
+        finds the LAST occurence of rem 3) the substring [FIRST to LAST] is
+        what we return...
+
+        @EXTRA:
+        https://en.cppreference.com/w/cpp/string/basic_string/find_first_not_of
+        https://en.cppreference.com/w/cpp/string/basic_string/find_first_not_of
+        for the string function docs */
     string::size_type begin = str.find_first_not_of(rem);
-    if (begin == std::string::npos)
+
+    /** No characters besides rem exists, return empty
+        Note string::npos == -1 indicates "couldn't be found" */
+    if (begin == string::npos)
         return "";
+
+    /** take the substring from FIRST occurence to LAST occurence of characters
+        which are NOT in rem, as discussed above */
     return str.substr(begin, str.find_last_not_of(rem) - begin + 1);
 }
 
