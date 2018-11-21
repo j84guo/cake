@@ -6,7 +6,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
-/** C std library and Unix headers */
+/** C std library and Unix headers (mainly used in function doTask()) */
 #include <string.h>
 #include <stdio.h>
 #include <unistd.h>
@@ -17,12 +17,12 @@ using std::endl;
 using std::cerr;
 using std::cout;
 using std::string;
-using std::vector;
-using std::getline;
+using std::vector; /** extendable array */
+using std::getline; /** reads a line from a file and puts it in a string */
 using std::ostream;
-using std::ifstream;
-using std::unordered_map;
-using std::unordered_set;
+using std::ifstream; /** class reprenting a file to read */
+using std::unordered_map; /** C++'s hash table */
+using std::unordered_set; /** C++'s hash set */
 
 /** Target is a DAG node; it has a vertex ID (name), some edges (adjacent) and
    data (tasks). */
