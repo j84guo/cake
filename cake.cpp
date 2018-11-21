@@ -274,9 +274,17 @@ int main()
         return 1;
     }
 
+    // for (string& l : lines)
+    //    cout << l << "\n";
+    // return 0;
+
     TargetMap nodes;
     if (!parseTargets(nodes, lines))
         return 1;
+
+    // for (auto& p : nodes)
+    //     cout << "(" << p.first << ") " << p.second << "\n";
+    // return 0;
 
     vector<string> order;
     sortTargets(nodes, order);
@@ -284,6 +292,7 @@ int main()
     cout << "[...Target Order...]\n";
     for (auto& name : order)
         cout << name << "\n";
+    // return 0;
 
     cout << "[...Processing...]\n";
     return processTargets(nodes, order) ? 0 : 1;
