@@ -166,6 +166,14 @@ bool parseTargets(TargetMap& nodes, vector<string>& lines)
         nodes.emplace(name, name);
         parseAdjacent(it->substr(pos + 1), nodes.at(name));
 
+        /** 1) pre-increment the iterator 2) compare it with lines.end()
+            3) if we're not at the end yet, we should increment the lineNo
+            (used for error reporting)
+
+            technically ++lineNo could be in the while loop body, I'd like to
+            emphasize the "it" and "lineNo" are ALWAYS incremented together,
+            (see the if statement above, they're also incremented together)
+            hence putting it in the while loop condition*/
         while (++it != lines.end() && ++lineNo) {
             if (!parseTask(*it, nodes.at(name).tasks))
                 break;
