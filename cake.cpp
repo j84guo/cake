@@ -230,12 +230,15 @@ bool doTask(string task)
         separate the creation of a child process from loading an executable
         from disk... After many decades, this process creation interface has
         remained more or less unchanged, an example of the quality of Unix's
-        design */
+        design
+
+        @EXTRA:
+        https://ece.uwaterloo.ca/~dwharder/icsrts/Tutorials/fork_exec */
     int status;
     pid_t child = fork();
 
     if (child < 0) {
-        /** child creation failed */
+        /** [THIS IS THE PARENT!] child creation failed */
         perror("fork");
         return false;
     } else if (!child) {
@@ -247,7 +250,8 @@ bool doTask(string task)
         exit(1);
     }
 
-    /** wait for the child to finish an collect it's exit code */
+    /** [THIS IS THE PARENT!] wait for the child to finish an collect it's exit
+        code using the wait() system call */
     if (wait(&status) == -1) {
         perror("wait");
         return false;
